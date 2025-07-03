@@ -1,0 +1,5 @@
+1. Add an examples button in the nav tab that links to the crate docs.
+
+2. Add ability to interatively execute the examples (rust) in the browser.
+React Component under pages.
+
