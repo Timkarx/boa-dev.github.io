@@ -5,13 +5,15 @@ import {
   VersionItem,
   SuiteResult,
   ConformanceState,
+  FilterOption,
 } from "@site/src/components/conformance/types";
 import ResultNavigation from "./nav";
 import {
   createState,
+  createSearchParams,
   mapToResultInfo,
 } from "@site/src/components/conformance/utils";
-import { useHistory } from "@docusaurus/router";
+import { useHistory, useLocation } from "@docusaurus/router";
 
 import styles from "./styles.module.css";
 
@@ -19,20 +21,24 @@ type ResultsProps = {
   state: ConformanceState;
 };
 
-export default function ResultsDisplay(props: ResultsProps): JSX.Element {
+export default function ResultsDisplay(props: ResultsProps): React.ReactNode {
   const [currentSuite, setCurrentSuite] = React.useState<SuiteResult | null>(
     null,
   );
 
   // Refs
-  const activeResults = React.useRef<undefined | ResultInfo>();
+  const activeResults = React.useRef<undefined | ResultInfo>(undefined);
 
   // History handling
   const history = useHistory<ConformanceState>();
 
-  const pushStateToHistory = (state: ConformanceState): void => {
+  const pushStateToHistory = (
+    search: string,
+    state: ConformanceState,
+  ): void => {
     history.push({
       pathname: "/conformance",
+      search,
       state,
     });
   };
@@ -91,11 +97,13 @@ export default function ResultsDisplay(props: ResultsProps): JSX.Element {
   const navigateToSuite = (newSuiteName: string) => {
     const newPath = [...props.state.testPath, newSuiteName];
     pushStateToHistory(
+      createSearchParams(props.state.version, newPath),
       createState(
         props.state.version,
         newPath,
         props.state.ecmaScriptVersion,
         props.state.sortOption,
+        props.state.filterOption,
       ),
     );
   };
@@ -106,11 +114,13 @@ export default function ResultsDisplay(props: ResultsProps): JSX.Element {
   const sliceNavToIndex = (nonInclusiveIndex: number) => {
     const slicedPath = [...props.state.testPath.slice(0, nonInclusiveIndex)];
     pushStateToHistory(
+      createSearchParams(props.state.version, slicedPath),
       createState(
         props.state.version,
         slicedPath,
         props.state.ecmaScriptVersion,
         props.state.sortOption,
+        props.state.filterOption,
       ),
     );
   };
@@ -119,11 +129,17 @@ export default function ResultsDisplay(props: ResultsProps): JSX.Element {
   const setEcmaScriptFlag = (flag: string) => {
     const nulledFlag = flag ? flag : undefined;
     pushStateToHistory(
+      createSearchParams(
+        props.state.version,
+        props.state.testPath,
+        props.state.selectedTest,
+      ),
       createState(
         props.state.version,
         props.state.testPath,
         nulledFlag,
         props.state.sortOption,
+        props.state.filterOption,
       ),
     );
   };
@@ -131,11 +147,37 @@ export default function ResultsDisplay(props: ResultsProps): JSX.Element {
   // Sets the sorting option
   const setSortOption = (option: string) => {
     pushStateToHistory(
+      createSearchParams(
+        props.state.version,
+        props.state.testPath,
+        props.state.selectedTest,
+      ),
       createState(
         props.state.version,
         props.state.testPath,
         props.state.ecmaScriptVersion,
         option,
+        props.state.filterOption,
+      ),
+    );
+  };
+
+  // Sets the filter option.
+  //
+  // This filters the tests shown in the selection cards and tests grid
+  const setFilterOption = (option: string) => {
+    pushStateToHistory(
+      createSearchParams(
+        props.state.version,
+        props.state.testPath,
+        props.state.selectedTest,
+      ),
+      createState(
+        props.state.version,
+        props.state.testPath,
+        props.state.ecmaScriptVersion,
+        props.state.sortOption,
+        option as FilterOption,
       ),
     );
   };
@@ -143,11 +185,13 @@ export default function ResultsDisplay(props: ResultsProps): JSX.Element {
   // Sets a selected test.
   const setSelectedTest = (test: string | undefined) => {
     pushStateToHistory(
+      createSearchParams(props.state.version, props.state.testPath, test),
       createState(
         props.state.version,
         props.state.testPath,
         props.state.ecmaScriptVersion,
         props.state.sortOption,
+        props.state.filterOption,
         test,
       ),
     );
@@ -170,6 +214,7 @@ export default function ResultsDisplay(props: ResultsProps): JSX.Element {
         sliceNavToIndex={sliceNavToIndex}
         setEcmaScriptFlag={setEcmaScriptFlag}
         setSortOption={setSortOption}
+        setFilterOption={setFilterOption}
       />
       {currentSuite ? (
         <SuiteDisplay

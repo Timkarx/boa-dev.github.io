@@ -7,6 +7,7 @@ import {
 import {
   createState,
   mapToTestStats,
+  createSearchParams,
 } from "@site/src/components/conformance/utils";
 import { useHistory } from "@docusaurus/router";
 import Heading from "@theme/Heading";
@@ -17,7 +18,9 @@ interface BannerProps {
   focusItems: VersionItem[];
 }
 
-export default function ConformanceHeroBanner(props: BannerProps): JSX.Element {
+export default function ConformanceHeroBanner(
+  props: BannerProps,
+): React.ReactNode {
   return (
     <div className={styles.bannerSection}>
       {props.focusItems.map((item) => {
@@ -86,6 +89,7 @@ function BannerCard(props) {
             className="button button--block button--primary"
             onClick={() =>
               history.push({
+                search: createSearchParams(props.item),
                 pathname: "/conformance",
                 state: createState(props.item),
               })

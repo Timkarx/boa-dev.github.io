@@ -7,6 +7,13 @@ export type ConformanceState = {
   testPath: string[];
   ecmaScriptVersion: string | undefined;
   sortOption: string;
+  filterOption: FilterOption;
+  selectedTest: string | undefined;
+};
+
+export type UrlState = {
+  versionTag: string | undefined;
+  testPath: string[] | undefined;
   selectedTest: string | undefined;
 };
 
@@ -20,6 +27,13 @@ export type SortOption = {
   name: string;
   callback: (a: SuiteResult, b: SuiteResult) => number;
 };
+
+export enum FilterOption {
+  None = "none",
+  Passed = "passed",
+  Failed = "failed",
+  Ignored = "ignored",
+}
 
 // The below types are specific to test result types.
 
